@@ -10,6 +10,10 @@ _months = {
     'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
 }
 
+_pubtypes = {
+    'unpublished': 9, 'article': 8, 'book': 7, 'inbook': 7, 'incollection': 7, 'misc': 6, 'inproceedings': 5, 'techreport': 4,
+}
+
 def _author_fmt(author):
     return u' '.join(author.first() + author.middle() + author.last())
 
@@ -33,6 +37,22 @@ def _venue_type(entry):
     elif entry.type == 'phdthesis':
         venuetype = 'Ph.D. thesis, {}'.format(entry.fields['school'])
     return venuetype
+
+def _type(entry):
+    pub_type = ''
+    if entry.type == 'misc':
+        pub_type = 'Miscealeneous '
+    elif entry.type == 'article':
+        pub_type = 'Articles'
+    elif entry.type == 'preprint':
+        pub_type = 'Preprints'
+    elif entry.type == 'book' or entry.type == 'incollection':
+        pub_type = 'Books & Chapters'
+    else:
+        pub_type = entry.type
+
+    return pub_type
+
 
 def _venue(entry):
     f = entry.fields
@@ -62,6 +82,9 @@ def _venue(entry):
     return venue
 
 def _title(entry):
+    # print("TITILE")
+    # print(entry.type)
+    # print(type(entry))
     if entry.type == 'inbook':
         title = entry.fields['chapter']
     else:
@@ -106,14 +129,12 @@ def _month_name (monthnum):
 def _sortkey(entry):
     e = entry.fields
     year =  '{:04d}'.format(int(e['year']))
-    try:
-        monthnum = _month_match(e['month'])
-        year += '{:02d}'.format(monthnum)
-    except KeyError:
-        year += '00'
-    return year
+
+    return year + '{:04d}'.format(_pubtypes[entry.type])
 
 def main(bibfile, template):
+    # print("MAIN !!")
+
     # Load the template.
     tenv = jinja2.sandbox.SandboxedEnvironment()
     tenv.filters['author_fmt'] = _author_fmt
@@ -124,6 +145,8 @@ def main(bibfile, template):
     tenv.filters['main_url'] = _main_url
     tenv.filters['extra_urls'] = _extra_urls
     tenv.filters['monthname'] = _month_name
+    tenv.filters['type'] = _type
+    tenv.filters['sortkey'] = _sortkey
     with open(template) as f:
         tmpl = tenv.from_string(f.read())
 
