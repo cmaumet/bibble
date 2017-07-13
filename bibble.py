@@ -74,7 +74,10 @@ def _venue(entry):
     elif entry.type == 'inbook':
         venue = f['title']
     elif entry.type == 'techreport':
-        venue = '{0}, {1}'.format(f['number'], f['institution'])
+        if 'number' in f and 'institution' in f:
+            venue = '{0}, {1}'.format(f['number'], f['institution'])
+        else:
+            venue = ''
     elif entry.type == 'phdthesis':
         venue = ''
     else:
