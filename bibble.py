@@ -85,9 +85,6 @@ def _venue(entry):
     return venue
 
 def _title(entry):
-    # print("TITILE")
-    # print(entry.type)
-    # print(type(entry))
     if entry.type == 'inbook':
         title = entry.fields['chapter']
     else:
@@ -136,8 +133,6 @@ def _sortkey(entry):
     return year + '{:04d}'.format(_pubtypes[entry.type])
 
 def main(bibfile, template):
-    # print("MAIN !!")
-
     # Load the template.
     tenv = jinja2.sandbox.SandboxedEnvironment()
     tenv.filters['author_fmt'] = _author_fmt
