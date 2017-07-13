@@ -160,8 +160,17 @@ def main(bibfile, template):
 
     # Render the template.
     bib_sorted = sorted(db.entries.values(), key=_sortkey, reverse=True)
-    out = tmpl.render(entries=bib_sorted)
-    print out
+
+    entries = [(bib_sorted[0], None, None)]
+    prev_year = bib_sorted[0].fields['year']
+    prev_type = bib_sorted[0].type
+    for bib in bib_sorted:
+        entries.append((bib, prev_year, prev_type))
+        prev_year = bib.fields['year']
+        prev_type = bib.type
+
+    out = tmpl.render(entries=entries)
+    print(out)
 
 if __name__ == '__main__':
     main(*sys.argv[1:])
