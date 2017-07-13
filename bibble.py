@@ -44,7 +44,7 @@ def _type(entry):
         pub_type = 'Miscealeneous '
     elif entry.type == 'article':
         pub_type = 'Articles'
-    elif entry.type == 'preprint':
+    elif entry.type == 'unpublished':
         pub_type = 'Preprints'
     elif entry.type == 'book' or entry.type == 'incollection':
         pub_type = 'Books & Chapters'
