@@ -80,6 +80,8 @@ def _venue(entry):
             venue = ''
     elif entry.type == 'phdthesis':
         venue = ''
+    elif entry.type == 'unpublished':
+        venue = f['journal']
     else:
         venue = 'Unknown venue (type={})'.format(entry.type)
     return venue
