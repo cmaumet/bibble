@@ -14,6 +14,9 @@ _months = {
     'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
 }
 
+_pubtypes = {
+    'unpublished': 9, 'article': 8, 'book': 7, 'inbook': 7, 'incollection': 7, 'misc': 6, 'inproceedings': 5, 'techreport': 4,
+}
 
 def _author_fmt(author):
     return u' '.join(author.first() + author.middle() + author.last())
@@ -44,6 +47,20 @@ def _venue_type(entry):
         venuetype = 'Master\'s thesis, {}'.format(entry.fields['school'])
     return venuetype
 
+def _type(entry):
+    pub_type = ''
+    if entry.type == 'misc':
+        pub_type = 'Miscealeneous '
+    elif entry.type == 'article':
+        pub_type = 'Articles'
+    elif entry.type == 'unpublished':
+        pub_type = 'Preprints'
+    elif entry.type == 'book' or entry.type == 'incollection':
+        pub_type = 'Books & Chapters'
+    else:
+        pub_type = entry.type
+
+    return pub_type
 
 def _venue(entry):
     f = entry.fields
@@ -67,7 +84,12 @@ def _venue(entry):
     elif entry.type == 'techreport':
         venue = '{0}, {1}'.format(f['number'], f['institution'])
     elif entry.type == 'phdthesis' or entry.type == 'mastersthesis':
-        venue = ''
+        if 'number' in f and 'institution' in f:
+            venue = '{0}, {1}'.format(f['number'], f['institution'])
+        else:
+            venue = ''
+    elif entry.type == 'unpublished':
+        venue = f['journal']
     else:
         venue = 'Unknown venue (type={})'.format(entry.type)
     return venue
@@ -123,13 +145,9 @@ def _month_name(monthnum):
 
 def _sortkey(entry):
     e = entry.fields
-    year = '{:04d}'.format(int(e['year']))
-    try:
-        monthnum = _month_match(e['month'])
-        year += '{:02d}'.format(monthnum)
-    except KeyError:
-        year += '00'
-    return year
+    year =  '{:04d}'.format(int(e['year']))
+
+    return year + '{:04d}'.format(_pubtypes[entry.type])
 
 
 @click.command()
@@ -148,7 +166,10 @@ def main(bibfile, template, output):
     tenv.filters['main_url'] = _main_url
     tenv.filters['extra_urls'] = _extra_urls
     tenv.filters['monthname'] = _month_name
-    tmpl = tenv.from_string(template.read())
+    tenv.filters['type'] = _type
+    tenv.filters['sortkey'] = _sortkey
+    with open(template) as f:
+        tmpl = tenv.from_string(f.read())
 
     # Parse the BibTeX file.
     db = bibtex.Parser().parse_stream(bibfile)
@@ -159,8 +180,17 @@ def main(bibfile, template, output):
 
     # Render the template.
     bib_sorted = sorted(db.entries.values(), key=_sortkey, reverse=True)
-    out = tmpl.render(entries=bib_sorted)
-    print out
+
+    entries = [(bib_sorted[0], None, None)]
+    prev_year = bib_sorted[0].fields['year']
+    prev_type = bib_sorted[0].type
+    for bib in bib_sorted:
+        entries.append((bib, prev_year, prev_type))
+        prev_year = bib.fields['year']
+        prev_type = bib.type
+
+    out = tmpl.render(entries=entries)
+    print(out)
 
 
 if __name__ == '__main__':
