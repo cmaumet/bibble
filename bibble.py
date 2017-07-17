@@ -11,7 +11,7 @@ _months = {
 }
 
 _pubtypes = {
-    'unpublished': 9, 'article': 8, 'book': 7, 'inbook': 7, 'incollection': 7, 'misc': 6, 'inproceedings': 5, 'techreport': 4,
+    'unpublished': 9, 'techreport': 9, 'article': 8, 'book': 7, 'inbook': 7, 'incollection': 7, 'misc': 6, 'inproceedings': 5, 'techreport': 4,
 }
 
 def _author_fmt(author):
@@ -44,7 +44,7 @@ def _type(entry):
         pub_type = 'Miscealeneous '
     elif entry.type == 'article':
         pub_type = 'Articles'
-    elif entry.type == 'unpublished':
+    elif entry.type == 'unpublished' or entry.type == 'techreport':
         pub_type = 'Preprints'
     elif entry.type == 'book' or entry.type == 'incollection':
         pub_type = 'Books & Chapters'
