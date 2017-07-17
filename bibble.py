@@ -11,7 +11,8 @@ _months = {
 }
 
 _pubtypes = {
-    'unpublished': 9, 'techreport': 9, 'article': 8, 'book': 7, 'inbook': 7, 'incollection': 7, 'misc': 6, 'inproceedings': 5, 'techreport': 4,
+    'unpublished': 9, 'techreport': 9, 'article': 8, 'book': 7, 'inbook': 7, 'incollection': 7, 
+     'misc': 6, 'inproceedings': 5,
 }
 
 def _author_fmt(author):
